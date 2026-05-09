@@ -1,0 +1,17 @@
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+*.log
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+tests/
+Dockerfile*
+.dockerignore
+.gitignore
+.pre-commit-config.yaml
+README.md

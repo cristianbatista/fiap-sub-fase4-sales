@@ -1,0 +1,42 @@
+services:
+  sales-service:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://sales:sales@postgres:5432/sales
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-changeme}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      CATALOG_SERVICE_URL: ${CATALOG_SERVICE_URL:-http://localhost:8000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sales-net
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sales
+      POSTGRES_PASSWORD: sales
+      POSTGRES_DB: sales
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sales -d sales"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sales-net
+
+volumes:
+  postgres-data:
+
+networks:
+  sales-net:
+    driver: bridge
