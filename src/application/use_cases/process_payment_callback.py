@@ -17,7 +17,9 @@ class SaleNotFoundError(Exception):
 class SaleNotModifiableError(Exception):
     def __init__(self, current_status: SaleStatus) -> None:
         self.current_status = current_status
-        super().__init__(f"Sale is not in pending_payment status (current: {current_status})")
+        super().__init__(
+            f"Sale is not in pending_payment status (current: {current_status})"
+        )
 
 
 class ProcessPaymentCallback:
@@ -40,7 +42,9 @@ class ProcessPaymentCallback:
         elif payment_status == "cancelled":
             sale.status = SaleStatus.CANCELLED
             try:
-                await self._catalog.update_vehicle_status(str(sale.vehicle_id), "available")
+                await self._catalog.update_vehicle_status(
+                    str(sale.vehicle_id), "available"
+                )
             except Exception:
                 logger.error(
                     "Failed to restore vehicle status in Catalog after cancellation",

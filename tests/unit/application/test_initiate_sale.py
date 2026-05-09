@@ -14,7 +14,9 @@ from infrastructure.http.catalog_client import (
 )
 
 
-def _make_use_case(catalog_mock=None, repo_mock=None) -> tuple[InitiateSale, MagicMock, MagicMock]:
+def _make_use_case(
+    catalog_mock=None, repo_mock=None
+) -> tuple[InitiateSale, MagicMock, MagicMock]:
     repo = repo_mock or AsyncMock()
     catalog = catalog_mock or AsyncMock()
     return InitiateSale(repository=repo, catalog=catalog), repo, catalog

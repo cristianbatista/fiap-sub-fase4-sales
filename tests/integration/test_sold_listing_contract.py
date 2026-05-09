@@ -48,10 +48,13 @@ def client():
 
 
 def _get(client, params: dict | None = None, headers: dict | None = None):
-    return client.get("/sales/sold", params=params or {}, headers=headers or _auth_header())
+    return client.get(
+        "/sales/sold", params=params or {}, headers=headers or _auth_header()
+    )
 
 
 # --- Happy path ---
+
 
 def test_200_empty_list(client):
     mock_repo = AsyncMock()
@@ -80,7 +83,9 @@ def test_200_items_ordered_by_price_asc(client):
     assert resp.status_code == 200
     items = resp.json()["items"]
     assert len(items) == 2
-    assert float(items[0]["vehicle_price_at_sale"]) < float(items[1]["vehicle_price_at_sale"])
+    assert float(items[0]["vehicle_price_at_sale"]) < float(
+        items[1]["vehicle_price_at_sale"]
+    )
 
 
 def test_200_pagination_params_respected(client):
@@ -99,12 +104,14 @@ def test_200_pagination_params_respected(client):
 
 # --- Auth errors ---
 
+
 def test_401_without_token(client):
     resp = client.get("/sales/sold")
     assert resp.status_code == 401
 
 
 # --- Validation errors ---
+
 
 def test_422_when_page_size_exceeds_100(client):
     resp = _get(client, params={"page_size": 101})
