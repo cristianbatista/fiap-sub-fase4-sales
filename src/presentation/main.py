@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, status
+from presentation.routers import sales, webhook
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -43,6 +44,10 @@ async def internal_error_handler(request: Request, exc: Exception) -> JSONRespon
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "Erro interno do servidor."},
     )
+
+
+app.include_router(sales.router)
+app.include_router(webhook.router)
 
 
 @app.get("/health", tags=["Health"])
