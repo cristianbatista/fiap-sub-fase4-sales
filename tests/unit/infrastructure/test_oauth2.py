@@ -1,6 +1,3 @@
-import os
-from unittest.mock import patch
-
 import pytest
 from fastapi import HTTPException
 from jose import jwt
@@ -29,11 +26,10 @@ async def test_valid_token_returns_payload():
 
 
 async def test_expired_token_raises_401():
-    from jose import jwt as jose_jwt
+    import time
 
     from infrastructure.auth.oauth2 import get_current_user
-
-    import time
+    from jose import jwt as jose_jwt
 
     expired_token = jose_jwt.encode(
         {"sub": "op", "exp": int(time.time()) - 10},

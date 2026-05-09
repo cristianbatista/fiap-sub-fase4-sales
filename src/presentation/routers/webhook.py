@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-
 from application.use_cases.process_payment_callback import (
     ProcessPaymentCallback,
     SaleNotFoundError,
     SaleNotModifiableError,
 )
+from fastapi import APIRouter, Depends, HTTPException, status
 from infrastructure.database.database import get_session
 from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
 from infrastructure.http.catalog_client import CatalogClient
-from presentation.schemas.webhook_schemas import WebhookPaymentRequest, WebhookPaymentResponse
+from presentation.schemas.webhook_schemas import (
+    WebhookPaymentRequest,
+    WebhookPaymentResponse,
+)
 
 router = APIRouter(prefix="/webhook", tags=["Webhook"])
 
@@ -20,7 +22,9 @@ def _get_use_case(session=Depends(get_session)) -> ProcessPaymentCallback:
     )
 
 
-@router.post("/payment", response_model=WebhookPaymentResponse, status_code=status.HTTP_200_OK)
+@router.post(
+    "/payment", response_model=WebhookPaymentResponse, status_code=status.HTTP_200_OK
+)
 async def payment_callback(
     body: WebhookPaymentRequest,
     use_case: ProcessPaymentCallback = Depends(_get_use_case),
@@ -30,16 +34,16 @@ async def payment_callback(
             payment_code=body.payment_code,
             payment_status=body.status,
         )
-    except SaleNotFoundError:
+    except SaleNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Código de pagamento não encontrado.",
-        )
-    except SaleNotModifiableError:
+        ) from err
+    except SaleNotModifiableError as err:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Esta venda não está pendente de pagamento.",
-        )
+        ) from err
 
     return WebhookPaymentResponse(
         sale_id=sale.id,

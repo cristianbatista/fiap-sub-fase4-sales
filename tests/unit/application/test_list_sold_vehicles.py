@@ -2,8 +2,6 @@ from datetime import date
 from decimal import Decimal
 from unittest.mock import AsyncMock
 
-import pytest
-
 from application.use_cases.list_sold_vehicles import ListSoldVehicles
 from domain.entities.sale import Sale, SaleStatus
 

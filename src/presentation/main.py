@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
-from presentation.routers import sales, webhook
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from presentation.routers import sales, webhook
 
 app = FastAPI(
     title="Sales Service",
@@ -20,12 +20,14 @@ app.add_middleware(
 
 
 @app.exception_handler(422)
-async def validation_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
     from fastapi.exceptions import RequestValidationError
 
     if isinstance(exc, RequestValidationError):
         errors = [
-            {"campo": ".".join(str(l) for l in e["loc"]), "mensagem": e["msg"]}
+            {"campo": ".".join(str(loc) for loc in e["loc"]), "mensagem": e["msg"]}
             for e in exc.errors()
         ]
         return JSONResponse(

@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-
 from application.use_cases.initiate_sale import InitiateSale
 from application.use_cases.list_sold_vehicles import ListSoldVehicles
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from infrastructure.auth.oauth2 import get_current_user
 from infrastructure.database.database import get_session
 from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
@@ -11,7 +10,11 @@ from infrastructure.http.catalog_client import (
     VehicleNotAvailableError,
     VehicleNotFoundError,
 )
-from presentation.schemas.sale_schemas import SaleCreateRequest, SaleResponse, SoldListingResponse
+from presentation.schemas.sale_schemas import (
+    SaleCreateRequest,
+    SaleResponse,
+    SoldListingResponse,
+)
 
 router = APIRouter(prefix="/sales", tags=["Sales"])
 
@@ -35,21 +38,21 @@ async def initiate_sale(
             buyer_cpf=body.buyer_cpf,
             sale_date=body.sale_date,
         )
-    except VehicleNotFoundError:
+    except VehicleNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Veículo não encontrado no catálogo.",
-        )
-    except VehicleNotAvailableError:
+        ) from err
+    except VehicleNotAvailableError as err:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Veículo já foi vendido.",
-        )
-    except CatalogUnavailableError:
+        ) from err
+    except CatalogUnavailableError as err:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Serviço de catálogo indisponível. Tente novamente.",
-        )
+        ) from err
 
     return SaleResponse.model_validate(sale)
 

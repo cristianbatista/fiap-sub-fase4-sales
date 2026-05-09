@@ -4,9 +4,8 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
-
 from domain.entities.sale import Sale, SaleStatus
+from fastapi.testclient import TestClient
 from presentation.main import app
 
 
@@ -40,6 +39,7 @@ def _post(client, body: dict):
 
 # --- Happy path ---
 
+
 def test_200_on_paid(client):
     sale = _make_sale()
     mock_repo = AsyncMock()
@@ -48,7 +48,9 @@ def test_200_on_paid(client):
     mock_catalog = AsyncMock()
 
     with (
-        patch("presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo),
+        patch(
+            "presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo
+        ),
         patch("presentation.routers.webhook.CatalogClient", return_value=mock_catalog),
     ):
         resp = _post(client, {"payment_code": str(sale.payment_code), "status": "paid"})
@@ -67,10 +69,14 @@ def test_200_on_cancelled(client):
     mock_catalog = AsyncMock()
 
     with (
-        patch("presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo),
+        patch(
+            "presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo
+        ),
         patch("presentation.routers.webhook.CatalogClient", return_value=mock_catalog),
     ):
-        resp = _post(client, {"payment_code": str(sale.payment_code), "status": "cancelled"})
+        resp = _post(
+            client, {"payment_code": str(sale.payment_code), "status": "cancelled"}
+        )
 
     assert resp.status_code == 200
     data = resp.json()
@@ -79,6 +85,7 @@ def test_200_on_cancelled(client):
 
 # --- Validation errors ---
 
+
 def test_400_invalid_status_value(client):
     resp = _post(client, {"payment_code": str(uuid4()), "status": "invalid"})
     assert resp.status_code == 422
@@ -86,15 +93,16 @@ def test_400_invalid_status_value(client):
 
 # --- Not found ---
 
-def test_404_unknown_payment_code(client):
-    from application.use_cases.process_payment_callback import SaleNotFoundError
 
+def test_404_unknown_payment_code(client):
     mock_repo = AsyncMock()
     mock_repo.find_by_payment_code.return_value = None
     mock_catalog = AsyncMock()
 
     with (
-        patch("presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo),
+        patch(
+            "presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo
+        ),
         patch("presentation.routers.webhook.CatalogClient", return_value=mock_catalog),
     ):
         resp = _post(client, {"payment_code": str(uuid4()), "status": "paid"})
@@ -105,6 +113,7 @@ def test_404_unknown_payment_code(client):
 
 # --- Conflict (not modifiable) ---
 
+
 def test_409_on_already_completed(client):
     sale = _make_sale(SaleStatus.COMPLETED)
     mock_repo = AsyncMock()
@@ -112,7 +121,9 @@ def test_409_on_already_completed(client):
     mock_catalog = AsyncMock()
 
     with (
-        patch("presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo),
+        patch(
+            "presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo
+        ),
         patch("presentation.routers.webhook.CatalogClient", return_value=mock_catalog),
     ):
         resp = _post(client, {"payment_code": str(sale.payment_code), "status": "paid"})
@@ -128,9 +139,13 @@ def test_409_on_already_cancelled(client):
     mock_catalog = AsyncMock()
 
     with (
-        patch("presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo),
+        patch(
+            "presentation.routers.webhook.SaleRepositoryImpl", return_value=mock_repo
+        ),
         patch("presentation.routers.webhook.CatalogClient", return_value=mock_catalog),
     ):
-        resp = _post(client, {"payment_code": str(sale.payment_code), "status": "cancelled"})
+        resp = _post(
+            client, {"payment_code": str(sale.payment_code), "status": "cancelled"}
+        )
 
     assert resp.status_code == 409

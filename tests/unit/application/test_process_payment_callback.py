@@ -1,10 +1,9 @@
 from datetime import date
 from decimal import Decimal
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
-
 from application.use_cases.process_payment_callback import (
     ProcessPaymentCallback,
     SaleNotFoundError,
@@ -78,7 +77,9 @@ async def test_cancelled_calls_catalog_restore_available():
     uc = ProcessPaymentCallback(repository=repo, catalog=catalog)
     await uc.execute(sale.payment_code, "cancelled")
 
-    catalog.update_vehicle_status.assert_called_once_with(str(sale.vehicle_id), "available")
+    catalog.update_vehicle_status.assert_called_once_with(
+        str(sale.vehicle_id), "available"
+    )
 
 
 async def test_sale_not_found_raises_error():

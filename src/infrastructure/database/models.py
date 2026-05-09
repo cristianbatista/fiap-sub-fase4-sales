@@ -1,6 +1,6 @@
-import enum
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from sqlalchemy import Date, DateTime, Enum, Index, Numeric, String, UniqueConstraint
@@ -11,7 +11,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class SaleStatusEnum(str, enum.Enum):
+class SaleStatusEnum(StrEnum):
     PENDING_PAYMENT = "pending_payment"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
