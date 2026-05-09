@@ -18,48 +18,36 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    sale_status = sa.Enum(
-        "pending_payment",
-        "completed",
-        "cancelled",
-        name="sale_status",
+    op.execute(
+        """
+        DO $$ BEGIN
+            CREATE TYPE sale_status AS ENUM ('pending_payment', 'completed', 'cancelled');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$
+        """
     )
-    sale_status.create(op.get_bind(), checkfirst=True)
-
-    op.create_table(
-        "sales",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("vehicle_id", sa.String(), nullable=False),
-        sa.Column("vehicle_price_at_sale", sa.Numeric(12, 2), nullable=False),
-        sa.Column("buyer_cpf", sa.String(14), nullable=False),
-        sa.Column("sale_date", sa.Date(), nullable=False),
-        sa.Column("payment_code", sa.UUID(), nullable=False),
-        sa.Column(
-            "status",
-            sa.Enum(
-                "pending_payment",
-                "completed",
-                "cancelled",
-                name="sale_status",
-            ),
-            nullable=False,
-        ),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            nullable=False,
-        ),
-        sa.Column(
-            "updated_at",
-            sa.DateTime(timezone=True),
-            nullable=False,
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("payment_code", name="uq_sales_payment_code"),
+    op.execute(
+        """
+        CREATE TABLE IF NOT EXISTS sales (
+            id UUID NOT NULL,
+            vehicle_id VARCHAR NOT NULL,
+            vehicle_price_at_sale NUMERIC(12, 2) NOT NULL,
+            buyer_cpf VARCHAR(14) NOT NULL,
+            sale_date DATE NOT NULL,
+            payment_code UUID NOT NULL,
+            status sale_status NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL,
+            CONSTRAINT pk_sales PRIMARY KEY (id),
+            CONSTRAINT uq_sales_payment_code UNIQUE (payment_code)
+        )
+        """
     )
-    op.create_index("ix_sales_status", "sales", ["status"])
-    op.create_index(
-        "ix_sales_vehicle_price_at_sale", "sales", ["vehicle_price_at_sale"]
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_sales_status ON sales (status)"
+    )
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_sales_vehicle_price_at_sale ON sales (vehicle_price_at_sale)"
     )
 
 

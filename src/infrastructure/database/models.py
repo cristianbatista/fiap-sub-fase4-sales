@@ -29,7 +29,13 @@ class SaleModel(Base):
     sale_date: Mapped[date] = mapped_column(Date, nullable=False)
     payment_code: Mapped[UUID] = mapped_column(unique=True, default=uuid4)
     status: Mapped[SaleStatusEnum] = mapped_column(
-        Enum(SaleStatusEnum, name="sale_status"), nullable=False
+        Enum(
+            SaleStatusEnum,
+            name="sale_status",
+            create_type=False,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        nullable=False,
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
