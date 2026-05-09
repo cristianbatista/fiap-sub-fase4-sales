@@ -20,9 +20,12 @@ class CatalogUnavailableError(Exception):
 
 
 class CatalogClient:
-    def __init__(self) -> None:
+    def __init__(self, token: str | None = None) -> None:
         base_url = os.environ["CATALOG_SERVICE_URL"]
-        self._client = httpx.AsyncClient(base_url=base_url, timeout=5.0)
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
+        self._client = httpx.AsyncClient(
+            base_url=base_url, timeout=5.0, headers=headers
+        )
 
     async def get_vehicle(self, vehicle_id: str) -> dict:
         try:
