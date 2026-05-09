@@ -261,7 +261,7 @@ jobs:
                     image: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
                     imagePullPolicy: Never
                     ports:
-                      - containerPort: 8000
+                      - containerPort: 8001
                     env:
                       - name: DATABASE_URL
                         value: "postgresql+asyncpg://sales:sales@postgres:5432/sales"
@@ -280,7 +280,7 @@ jobs:
                     readinessProbe:
                       httpGet:
                         path: /health
-                        port: 8000
+                        port: 8001
                       initialDelaySeconds: 10
                       periodSeconds: 5
                       failureThreshold: 6
@@ -293,8 +293,8 @@ jobs:
             selector:
               app: sales-service
             ports:
-              - port: 8000
-                targetPort: 8000
+              - port: 8001
+                targetPort: 8001
           EOF
 
       - name: Wait for Sales Service rollout
@@ -302,7 +302,7 @@ jobs:
 
       - name: Health check via port-forward
         run: |
-          kubectl port-forward svc/sales-service 8001:8000 -n sales &
+          kubectl port-forward svc/sales-service 8001:8001 -n sales &
           sleep 3
           curl --fail --retry 5 --retry-delay 3 http://localhost:8001/health
 
