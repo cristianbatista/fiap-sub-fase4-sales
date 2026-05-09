@@ -28,8 +28,9 @@ async def test_valid_token_returns_payload():
 async def test_expired_token_raises_401():
     import time
 
-    from infrastructure.auth.oauth2 import get_current_user
     from jose import jwt as jose_jwt
+
+    from infrastructure.auth.oauth2 import get_current_user
 
     expired_token = jose_jwt.encode(
         {"sub": "op", "exp": int(time.time()) - 10},

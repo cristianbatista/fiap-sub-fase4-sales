@@ -2,8 +2,9 @@ from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from domain.entities.sale import SaleStatus
 from pydantic import BaseModel, field_validator
+
+from domain.entities.sale import SaleStatus
 
 
 def _cpf_digits(cpf: str) -> str:

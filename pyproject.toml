@@ -49,6 +49,9 @@ target-version = "py311"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = ["E501", "B008"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["application", "domain", "infrastructure", "presentation"]
+
 [tool.black]
 line-length = 88
 target-version = ["py311"]

@@ -4,8 +4,9 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
-from domain.entities.sale import Sale, SaleStatus
 from fastapi.testclient import TestClient
+
+from domain.entities.sale import Sale, SaleStatus
 from presentation.main import app
 
 

@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
+
 from application.use_cases.process_payment_callback import (
     ProcessPaymentCallback,
     SaleNotFoundError,

@@ -1,9 +1,10 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+
 from application.use_cases.process_payment_callback import (
     ProcessPaymentCallback,
     SaleNotFoundError,
     SaleNotModifiableError,
 )
-from fastapi import APIRouter, Depends, HTTPException, status
 from infrastructure.database.database import get_session
 from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
 from infrastructure.http.catalog_client import CatalogClient

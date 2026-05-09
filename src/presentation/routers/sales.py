@@ -1,6 +1,7 @@
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+
 from application.use_cases.initiate_sale import InitiateSale
 from application.use_cases.list_sold_vehicles import ListSoldVehicles
-from fastapi import APIRouter, Depends, HTTPException, Query, status
 from infrastructure.auth.oauth2 import get_current_user
 from infrastructure.database.database import get_session
 from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
