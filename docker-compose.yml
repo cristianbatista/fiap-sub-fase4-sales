@@ -4,7 +4,7 @@ services:
       context: .
       target: production
     ports:
-      - "8001:8000"
+      - "8001:8001"
     environment:
       DATABASE_URL: postgresql+asyncpg://sales:sales@postgres:5432/sales
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-changeme}
