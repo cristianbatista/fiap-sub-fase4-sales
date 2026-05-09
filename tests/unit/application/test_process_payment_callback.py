@@ -42,7 +42,7 @@ async def test_paid_transitions_sale_to_completed():
     assert result.status == SaleStatus.COMPLETED
 
 
-async def test_paid_does_not_call_catalog():
+async def test_paid_calls_catalog_with_sold():
     sale = _make_sale()
     repo = AsyncMock()
     repo.find_by_payment_code.return_value = sale
@@ -52,7 +52,24 @@ async def test_paid_does_not_call_catalog():
     uc = ProcessPaymentCallback(repository=repo, catalog=catalog)
     await uc.execute(sale.payment_code, "paid")
 
-    catalog.update_vehicle_status.assert_not_called()
+    catalog.update_vehicle_status.assert_called_once_with(str(sale.vehicle_id), "sold")
+
+
+async def test_paid_completes_even_if_catalog_fails():
+    sale = _make_sale()
+    repo = AsyncMock()
+    repo.find_by_payment_code.return_value = sale
+    repo.save.side_effect = lambda s: s
+    catalog = AsyncMock()
+    catalog.update_vehicle_status.side_effect = Exception("network failure")
+
+    uc = ProcessPaymentCallback(repository=repo, catalog=catalog)
+
+    with patch("application.use_cases.process_payment_callback.logger") as mock_logger:
+        result = await uc.execute(sale.payment_code, "paid")
+
+    assert result.status == SaleStatus.COMPLETED
+    mock_logger.error.assert_called_once()
 
 
 async def test_cancelled_transitions_sale_to_cancelled():

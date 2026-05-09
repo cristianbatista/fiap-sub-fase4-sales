@@ -50,7 +50,7 @@ async def test_get_vehicle_raises_not_available_when_status_not_available():
     mock_response.json.return_value = {
         "id": "v1",
         "price": "50000.00",
-        "status": "sold",
+        "status": "reserved",
     }
 
     with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):

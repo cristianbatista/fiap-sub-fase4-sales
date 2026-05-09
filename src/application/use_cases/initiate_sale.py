@@ -25,8 +25,8 @@ class InitiateSale:
             sale_date=sale_date,
         )
 
-        # Notify catalog before persisting; if catalog fails, no record is created.
-        await self._catalog.update_vehicle_status(vehicle_id, "sold")
+        # Reserve the vehicle before persisting — if catalog fails, no record is created.
+        await self._catalog.update_vehicle_status(vehicle_id, "reserved")
 
         return await self._repository.save(sale)
 

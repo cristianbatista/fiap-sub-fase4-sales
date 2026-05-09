@@ -37,7 +37,13 @@ class ProcessPaymentCallback:
 
         if payment_status == "paid":
             sale.status = SaleStatus.COMPLETED
-            # Vehicle is already "sold" in Catalog since sale initiation — no call needed.
+            try:
+                await self._catalog.update_vehicle_status(str(sale.vehicle_id), "sold")
+            except Exception:
+                logger.error(
+                    "Failed to mark vehicle as sold in Catalog after payment confirmation",
+                    extra={"sale_id": str(sale.id), "vehicle_id": str(sale.vehicle_id)},
+                )
 
         elif payment_status == "cancelled":
             sale.status = SaleStatus.CANCELLED
