@@ -5,6 +5,7 @@ from application.use_cases.process_payment_callback import (
     SaleNotFoundError,
     SaleNotModifiableError,
 )
+from infrastructure.auth.oauth2 import make_service_token
 from infrastructure.database.database import get_session
 from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
 from infrastructure.http.catalog_client import CatalogClient
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/webhook", tags=["Webhook"])
 def _get_use_case(session=Depends(get_session)) -> ProcessPaymentCallback:
     return ProcessPaymentCallback(
         repository=SaleRepositoryImpl(session),
-        catalog=CatalogClient(),
+        catalog=CatalogClient(token=make_service_token()),
     )
 
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from application.use_cases.initiate_sale import InitiateSale
 from application.use_cases.list_sold_vehicles import ListSoldVehicles
@@ -20,10 +20,13 @@ from presentation.schemas.sale_schemas import (
 router = APIRouter(prefix="/sales", tags=["Sales"])
 
 
-def _get_use_case(session=Depends(get_session)) -> InitiateSale:
+def _get_use_case(request: Request, session=Depends(get_session)) -> InitiateSale:
+    token = (request.headers.get("Authorization") or "").removeprefix(
+        "Bearer "
+    ).strip() or None
     return InitiateSale(
         repository=SaleRepositoryImpl(session),
-        catalog=CatalogClient(),
+        catalog=CatalogClient(token=token),
     )
 
 
