@@ -1,9 +1,7 @@
-from datetime import UTC, date, datetime
+from datetime import UTC, date
 from decimal import Decimal
 from enum import StrEnum
 from uuid import UUID
-
-import pytest
 
 from domain.entities.sale import Sale, SaleStatus
 

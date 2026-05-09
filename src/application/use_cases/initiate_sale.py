@@ -5,9 +5,6 @@ from domain.entities.sale import Sale
 from domain.repositories.sale_repository import SaleRepository
 from infrastructure.http.catalog_client import (
     CatalogClient,
-    CatalogUnavailableError,
-    VehicleNotAvailableError,
-    VehicleNotFoundError,
 )
 
 

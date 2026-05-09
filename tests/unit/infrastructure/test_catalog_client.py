@@ -1,6 +1,7 @@
-import pytest
-import httpx
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import httpx
+import pytest
 
 
 @pytest.fixture(autouse=True)
@@ -13,7 +14,11 @@ async def test_get_vehicle_returns_dict_on_200():
 
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"id": "v1", "price": "50000.00", "status": "available"}
+    mock_response.json.return_value = {
+        "id": "v1",
+        "price": "50000.00",
+        "status": "available",
+    }
 
     with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
         client = CatalogClient()
@@ -35,11 +40,18 @@ async def test_get_vehicle_raises_not_found_on_404():
 
 
 async def test_get_vehicle_raises_not_available_when_status_not_available():
-    from infrastructure.http.catalog_client import CatalogClient, VehicleNotAvailableError
+    from infrastructure.http.catalog_client import (
+        CatalogClient,
+        VehicleNotAvailableError,
+    )
 
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"id": "v1", "price": "50000.00", "status": "sold"}
+    mock_response.json.return_value = {
+        "id": "v1",
+        "price": "50000.00",
+        "status": "sold",
+    }
 
     with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
         client = CatalogClient()
@@ -48,9 +60,15 @@ async def test_get_vehicle_raises_not_available_when_status_not_available():
 
 
 async def test_get_vehicle_raises_unavailable_on_request_error():
-    from infrastructure.http.catalog_client import CatalogClient, CatalogUnavailableError
+    from infrastructure.http.catalog_client import (
+        CatalogClient,
+        CatalogUnavailableError,
+    )
 
-    with patch("httpx.AsyncClient.get", new=AsyncMock(side_effect=httpx.RequestError("timeout"))):
+    with patch(
+        "httpx.AsyncClient.get",
+        new=AsyncMock(side_effect=httpx.RequestError("timeout")),
+    ):
         client = CatalogClient()
         with pytest.raises(CatalogUnavailableError):
             await client.get_vehicle("v1")

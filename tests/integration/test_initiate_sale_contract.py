@@ -1,5 +1,3 @@
-from datetime import date
-from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
@@ -50,9 +48,8 @@ def _post(client, body: dict, headers: dict | None = None):
 
 # --- Happy path ---
 
-def test_201_valid_sale(client):
-    from infrastructure.http.catalog_client import CatalogUnavailableError
 
+def test_201_valid_sale(client):
     mock_repo = AsyncMock()
     mock_catalog = AsyncMock()
     mock_catalog.get_vehicle.return_value = _vehicle_ok()
@@ -63,7 +60,14 @@ def test_201_valid_sale(client):
         patch("presentation.routers.sales.CatalogClient", return_value=mock_catalog),
     ):
         mock_repo.save.side_effect = lambda sale: sale
-        resp = _post(client, {"vehicle_id": VEHICLE_ID, "buyer_cpf": VALID_CPF, "sale_date": "2026-05-09"})
+        resp = _post(
+            client,
+            {
+                "vehicle_id": VEHICLE_ID,
+                "buyer_cpf": VALID_CPF,
+                "sale_date": "2026-05-09",
+            },
+        )
 
     assert resp.status_code == 201
     data = resp.json()
@@ -75,19 +79,35 @@ def test_201_valid_sale(client):
 
 # --- Auth errors ---
 
+
 def test_401_without_token(client):
-    resp = client.post("/sales", json={"vehicle_id": VEHICLE_ID, "buyer_cpf": VALID_CPF, "sale_date": "2026-05-09"})
+    resp = client.post(
+        "/sales",
+        json={
+            "vehicle_id": VEHICLE_ID,
+            "buyer_cpf": VALID_CPF,
+            "sale_date": "2026-05-09",
+        },
+    )
     assert resp.status_code == 401
 
 
 # --- Validation errors ---
+
 
 def test_400_invalid_cpf(client):
     mock_catalog = AsyncMock()
     mock_catalog.get_vehicle.return_value = _vehicle_ok()
 
     with patch("presentation.routers.sales.CatalogClient", return_value=mock_catalog):
-        resp = _post(client, {"vehicle_id": VEHICLE_ID, "buyer_cpf": INVALID_CPF, "sale_date": "2026-05-09"})
+        resp = _post(
+            client,
+            {
+                "vehicle_id": VEHICLE_ID,
+                "buyer_cpf": INVALID_CPF,
+                "sale_date": "2026-05-09",
+            },
+        )
 
     assert resp.status_code == 422
     body_text = resp.text.lower()
@@ -96,6 +116,7 @@ def test_400_invalid_cpf(client):
 
 # --- Catalog errors ---
 
+
 def test_404_vehicle_not_found(client):
     from infrastructure.http.catalog_client import VehicleNotFoundError
 
@@ -103,7 +124,14 @@ def test_404_vehicle_not_found(client):
     mock_catalog.get_vehicle.side_effect = VehicleNotFoundError(VEHICLE_ID)
 
     with patch("presentation.routers.sales.CatalogClient", return_value=mock_catalog):
-        resp = _post(client, {"vehicle_id": VEHICLE_ID, "buyer_cpf": VALID_CPF, "sale_date": "2026-05-09"})
+        resp = _post(
+            client,
+            {
+                "vehicle_id": VEHICLE_ID,
+                "buyer_cpf": VALID_CPF,
+                "sale_date": "2026-05-09",
+            },
+        )
 
     assert resp.status_code == 404
     assert "catálogo" in resp.json()["detail"].lower()
@@ -116,7 +144,14 @@ def test_409_vehicle_already_sold(client):
     mock_catalog.get_vehicle.side_effect = VehicleNotAvailableError(VEHICLE_ID)
 
     with patch("presentation.routers.sales.CatalogClient", return_value=mock_catalog):
-        resp = _post(client, {"vehicle_id": VEHICLE_ID, "buyer_cpf": VALID_CPF, "sale_date": "2026-05-09"})
+        resp = _post(
+            client,
+            {
+                "vehicle_id": VEHICLE_ID,
+                "buyer_cpf": VALID_CPF,
+                "sale_date": "2026-05-09",
+            },
+        )
 
     assert resp.status_code == 409
     assert "vendido" in resp.json()["detail"].lower()
@@ -129,7 +164,14 @@ def test_503_catalog_unreachable(client):
     mock_catalog.get_vehicle.side_effect = CatalogUnavailableError("down")
 
     with patch("presentation.routers.sales.CatalogClient", return_value=mock_catalog):
-        resp = _post(client, {"vehicle_id": VEHICLE_ID, "buyer_cpf": VALID_CPF, "sale_date": "2026-05-09"})
+        resp = _post(
+            client,
+            {
+                "vehicle_id": VEHICLE_ID,
+                "buyer_cpf": VALID_CPF,
+                "sale_date": "2026-05-09",
+            },
+        )
 
     assert resp.status_code == 503
     assert "catálogo" in resp.json()["detail"].lower()

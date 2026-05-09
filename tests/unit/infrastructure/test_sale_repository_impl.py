@@ -1,9 +1,7 @@
 from datetime import date
 from decimal import Decimal
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-
-import pytest
 
 from domain.entities.sale import Sale, SaleStatus
 
@@ -23,7 +21,9 @@ async def test_find_by_payment_code_returns_none_on_miss():
     from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
 
     session = AsyncMock()
-    session.execute.return_value = MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    session.execute.return_value = MagicMock(
+        scalar_one_or_none=MagicMock(return_value=None)
+    )
 
     repo = SaleRepositoryImpl(session)
     result = await repo.find_by_payment_code(uuid4())
@@ -44,6 +44,7 @@ async def test_list_completed_orders_by_price_asc():
     cheap.payment_code = uuid4()
     cheap.status = SaleStatusEnum.COMPLETED
     from datetime import UTC, datetime
+
     cheap.created_at = datetime.now(UTC)
     cheap.updated_at = datetime.now(UTC)
 
@@ -73,9 +74,10 @@ async def test_list_completed_orders_by_price_asc():
 
 
 async def test_save_persists_updated_status():
-    from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
-    from infrastructure.database.models import SaleModel, SaleStatusEnum
     from datetime import UTC, datetime
+
+    from infrastructure.database.models import SaleModel, SaleStatusEnum
+    from infrastructure.database.sale_repository_impl import SaleRepositoryImpl
 
     sale = _make_sale(SaleStatus.COMPLETED)
 
@@ -94,7 +96,7 @@ async def test_save_persists_updated_status():
     session.get.side_effect = [existing_model, existing_model]
 
     repo = SaleRepositoryImpl(session)
-    result = await repo.save(sale)
+    await repo.save(sale)
 
     assert existing_model.status == SaleStatusEnum.COMPLETED
     session.commit.assert_called_once()

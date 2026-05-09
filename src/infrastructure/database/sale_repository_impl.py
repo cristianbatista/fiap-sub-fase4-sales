@@ -65,9 +65,7 @@ class SaleRepositoryImpl(SaleRepository):
         model = result.scalar_one_or_none()
         return _to_entity(model) if model else None
 
-    async def list_completed(
-        self, page: int, page_size: int
-    ) -> tuple[list[Sale], int]:
+    async def list_completed(self, page: int, page_size: int) -> tuple[list[Sale], int]:
         skip = (page - 1) * page_size
 
         count_result = await self._session.execute(
