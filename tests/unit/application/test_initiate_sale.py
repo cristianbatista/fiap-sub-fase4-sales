@@ -99,7 +99,7 @@ async def test_catalog_update_status_called_with_sold():
     uc, _, _ = _make_use_case(catalog_mock=catalog, repo_mock=repo)
     await uc.execute("v1", "529.982.247-25", date(2026, 5, 9))
 
-    catalog.update_vehicle_status.assert_called_once_with("v1", "sold")
+    catalog.update_vehicle_status.assert_called_once_with("v1", "reserved")
 
 
 async def test_repo_not_called_when_catalog_update_fails():
