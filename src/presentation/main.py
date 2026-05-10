@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from presentation.routers import sales, webhook
+from presentation.routers import sales, token, webhook
 
 app = FastAPI(
     title="Sales Service",
@@ -49,6 +49,7 @@ async def internal_error_handler(request: Request, exc: Exception) -> JSONRespon
     )
 
 
+app.include_router(token.router)
 app.include_router(sales.router)
 app.include_router(webhook.router)
 

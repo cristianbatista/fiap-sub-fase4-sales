@@ -9,6 +9,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://sales:sales@postgres:5432/sales
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-changeme}
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      OAUTH2_CLIENT_ID: ${OAUTH2_CLIENT_ID}
+      OAUTH2_CLIENT_SECRET: ${OAUTH2_CLIENT_SECRET}
       CATALOG_SERVICE_URL: ${CATALOG_SERVICE_URL:-http://catalog-service:8000}
     depends_on:
       postgres:

@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     secret_key = os.environ["JWT_SECRET_KEY"]
     algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
 
@@ -20,6 +20,17 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
         return {"sub": sub}
     except JWTError as err:
         raise _credentials_exception() from err
+
+
+def create_access_token(subject: str) -> str:
+    secret_key = os.environ["JWT_SECRET_KEY"]
+    algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
+    expire_minutes = int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+    payload = {
+        "sub": subject,
+        "exp": datetime.now(UTC) + timedelta(minutes=expire_minutes),
+    }
+    return jwt.encode(payload, secret_key, algorithm=algorithm)
 
 
 def make_service_token() -> str:
